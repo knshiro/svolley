@@ -2,19 +2,15 @@
 
 ## Build
 
-Get volley
-
-    git submodule update --init
-
-Build it and add it to the volley lib folder
-   
-    sh buildVolley.sh
-
-Add your android.jar in the lib folder
-
-And package with sbt
-
     sbt package
+
+This will produce a jar in the target/scala_2.10 folder.
+
+If you try to use sbt publish-local the generated ivy contains a dependency for volley-0.1-SNAPSHOT that does not exists so you have to remove it by hand.
+
+## Project dependency
+
+I didn't integrate volley in the build so you need to add it to your project either by compiling it by hand or using [android-sdk-plugin](https://github.com/pfn/android-sdk-plugin).
 
 ## How to use
 

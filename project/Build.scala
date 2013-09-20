@@ -1,28 +1,32 @@
 import sbt._
-import Keys._
-
-object Dependencies {
-  val resolutionRepos = Seq(
-    //    "typesafe releases" at "http://repo.typesafe.com/typesafe/releases",
-    //    "typesafe snapshots" at "http://repo.typesafe.com/typesafe/snapshots",
-    //    "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases",
-    //    "sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-  )
-
-  val android = "com.google.android" % "android" % "2.2.1" % "provided"
-}
-
-
+import Keys._ 
+import android.ArbitraryProject
+ 
 object SVolleyBuild extends Build {
+  import android.Keys._
+  import android.Dependencies.LibraryProject
+ 
+  val androidLib = "com.google.android" % "android" % "2.2.1" % "provided"
 
-  import Dependencies._
+  val volleyGit = uri("https://android.googlesource.com/platform/frameworks/volley#4c2fe1379f5d18bac2d27e89d4abb553e6f8d2e8")
+
+  val volleyBase = ArbitraryProject.git(volleyGit)
+
+  lazy val volleySettings = android.Plugin.androidBuild ++ Seq(
+    platformTarget in Android := "android-17",
+    libraryProject in Android := true
+  )
+ 
+  override def buildLoaders = ArbitraryProject.settingsLoader(
+    Map(volleyBase -> volleySettings))
+ 
+  lazy val volley = RootProject(volleyBase)
 
   lazy val basicSettings = Seq(
     organization := "com.smint-corp",
     description := "Wrapper around Google Volley library for Android",
     startYear := Some(2013),
     scalaVersion := "2.10.2",
-    resolvers ++= Dependencies.resolutionRepos,
     scalacOptions := Seq(
       "-target:jvm-1.6", "-deprecation", "-feature"
     ),
@@ -30,18 +34,11 @@ object SVolleyBuild extends Build {
       "-source", "1.6",
       "-target", "1.6"))
 
+ 
   lazy val main = Project(id = "main", base = file("."))
     .settings(name := "svolley")
-    .settings(version := "0.0.1")
+    .settings(version := "0.0.2")
     .settings(basicSettings: _*)
-    .settings(libraryDependencies += android)
-
-  // configure prompt to show current project
-  override lazy val settings = super.settings :+ {
-    shellPrompt := {
-      s => Project.extract(s).currentProject.id + "> "
-    }
-  }
-
+    .settings(libraryDependencies += androidLib) dependsOn(volley % "provided")
 
 }
