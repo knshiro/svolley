@@ -5,7 +5,9 @@
  * terms of the Do What The Fuck You Want To Public License, Version 2,
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
-package com.smintcorp.svolley
+package me.ugo.svolley
+
+import Helpers._
 
 import scala.collection.mutable.{Map => MMap}
 import scala.concurrent.Future
@@ -15,7 +17,6 @@ import com.android.volley.Request.Method
 import com.android.volley.RequestQueue
 
 import android.util.Base64
-import com.smintcorp.svolley.Helpers._
 
 
 trait SHTTPClient {

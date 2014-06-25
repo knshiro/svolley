@@ -6,7 +6,7 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-package com.smintcorp.svolley
+package me.ugo.svolley
 
 import org.json.JSONObject
 
