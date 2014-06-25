@@ -16,8 +16,8 @@ I didn't integrate volley in the build so you need to add it to your project eit
 
 ### Import 
 
-    import com.smintcorp.svolley.SHTTPClient
-    import com.smintcorp.svolley.Helpers._
+    import me.ugo.svolley.SHTTPClient
+    import me.ugo.svolley.Helpers._
 
 ### Create an implicit Volley request queue
 
