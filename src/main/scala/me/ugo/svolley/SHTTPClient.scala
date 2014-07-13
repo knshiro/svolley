@@ -7,8 +7,6 @@
  */
 package me.ugo.svolley
 
-import Helpers._
-
 import scala.collection.mutable.{Map => MMap}
 import scala.concurrent.Future
 import scala.concurrent.{ future, promise }
@@ -18,9 +16,18 @@ import com.android.volley.RequestQueue
 
 import android.util.Base64
 
+import SOperation._
+
+object SHTTPClient {
+
+  val DefaultHTTPMethodsEncodingParametersInURI = Set(Method.GET, Method.HEAD,Method.DELETE)
+
+}
 
 trait SHTTPClient {
-  
+
+  var HTTPMethodsEncodingParametersInURI = SHTTPClient.DefaultHTTPMethodsEncodingParametersInURI
+
   def baseUrl:String
   
   private val mHeaders:MMap[String,String] = MMap()
@@ -34,38 +41,49 @@ trait SHTTPClient {
     setDefaultHeader("Authorization",auth)
   }
   def clearAuthorizationHeader { clearDefaultHeader("Authorization") }
-  
-  
 
-  def makeRequest[T,U](method:Int, path:String, requestBody:Option[T], headers:Map[String,String] = Map())(implicit ev:RequestBuilder[T,U]):SOperation[T,U] = {
-    //TODO make a more robust path construction
-    ev.request(method, baseUrl + "/" + path, requestBody, headers ++ mHeaders)
+
+  def buildUrl(path:String):String = {
+    if(baseUrl.last == '/') baseUrl + path
+    else baseUrl + "/" + path
   }
-  
-  def performRequest[T,U]( request:SOperation[T,U])(implicit rq:RequestQueue) = {
+
+  def buildHeaders(headers:Map[String,String]):Map[String,String] = headers ++ mHeaders
+
+
+  def get[T](path:String, params:Map[String,String]=Map(), headers:Map[String,String] = Map())(implicit rq:RequestQueue, ob:OperationBuilder[T]):Future[T] = {
+    val req = SRequest(Method.GET, buildUrl(path), Some(params), buildHeaders(headers))
+    performRequest[T](req)
+  }
+
+  def delete[T](path:String, params:Map[String,String] = Map(), headers:Map[String,String] = Map())(implicit rq:RequestQueue, ob:OperationBuilder[T]):Future[T] = {
+    val req = SRequest(Method.DELETE, buildUrl(path), Some(params), buildHeaders(headers))
+    performRequest[T](req)
+  }
+
+  def post[T,U](path:String, requestBody:Option[T] = None, headers:Map[String,String] = Map())(implicit rq:RequestQueue, ev:RequestBuilder[T], ob:OperationBuilder[U]):Future[U] = {
+    performRequest[T,U](Method.POST, path, requestBody, headers)
+  }
+
+  def put[T,U](path:String, requestBody:Option[T] = None, headers:Map[String,String] = Map())(implicit rq:RequestQueue, ev:RequestBuilder[T], ob:OperationBuilder[U]):Future[U] = {
+    performRequest[T,U](Method.PUT, path, requestBody, headers)
+  }
+
+  def performRequest[T,U](method:Int, path:String, requestBody:Option[T] = None, headers:Map[String,String] = Map())(implicit rq:RequestQueue, rb:RequestBuilder[T], ob:OperationBuilder[U]):Future[U] = {
+    val request = makeRequest(method, path, requestBody, headers)(rb,ob)
+    performRequest(request)
+  }
+
+  def makeRequest[T,U](method:Int, path:String, requestBody:Option[T] = None, headers:Map[String,String] = Map())(implicit rb:RequestBuilder[T], ob:OperationBuilder[U]):SOperation[U] = {
+    val req = rb.request(method, buildUrl(path), requestBody, buildHeaders(headers))
+    ob(req)
+  }
+
+  def performRequest[U]( request:SOperation[U])(implicit rq:RequestQueue):Future[U] = {
     rq.add(request)
     request.future
   }
-  
-  def get[T](path:String, headers:Map[String,String] = Map())(implicit ev:RequestBuilder[AnyRef,T], rq:RequestQueue):Future[T] = {
-    val request = makeRequest[AnyRef,T](Method.GET, path, None, headers)
-    performRequest[AnyRef,T](request)
-  }
-  
-  def post[T,U](path:String, requestBody:T, headers:Map[String,String] = Map())(implicit ev:RequestBuilder[T,U], rq:RequestQueue):Future[U] = {
-    val request = makeRequest[T,U](Method.POST, path, Some(requestBody), headers)
-    performRequest(request)
-  }
-  
-  def put[T,U](path:String, requestBody:T, headers:Map[String,String] = Map())(implicit ev:RequestBuilder[T,U], rq:RequestQueue):Future[U] = {
-    val request = makeRequest[T,U](Method.PUT, path, Some(requestBody), headers)
-    performRequest(request)
-  }
-  
-  def delete[T,U](path:String, requestBody:T, headers:Map[String,String] = Map())(implicit ev:RequestBuilder[T,U], rq:RequestQueue):Future[U] = {
-    val request = makeRequest[T,U](Method.DELETE, path, Some(requestBody), headers)
-    performRequest(request)
-  }
-  
+
+
 }
 

@@ -4,30 +4,30 @@
 
     sbt package
 
-This will produce a jar in the target/scala_2.10 folder.
+This will produce a jar in the target/scala_2.10 folder that you can add manually in your project libs folder.
 
-If you try to use sbt publish-local the generated ivy contains a dependency for volley-0.1-SNAPSHOT that does not exists so you have to remove it by hand.
+Or you can use
 
-## Project dependency
+    sbt publish-local
 
-I didn't integrate volley in the build so you need to add it to your project either by compiling it by hand or using [android-sdk-plugin](https://github.com/pfn/android-sdk-plugin).
+And add this line to your build.sbt 
+
+    libraryDependencies += "me.ugo" %% "svolley" % "0.0.3-SNAPSHOT"
+
 
 ## How to use
 
-### Import 
+```scala
+// Imports
+import com.android.volley.toolbox.Volley
+import me.ugo.svolley.SHTTPClient
 
-    import me.ugo.svolley.SHTTPClient
-    import me.ugo.svolley.Helpers._
+// Create Volley request queue, if it is created as an Activity parameter, better use lazy since context may be null at initialization
+implicit lazy val rq = Volley.newRequestQueue(context)
 
-### Create an implicit Volley request queue
+// Create a client for your api
+val httpClient = new SHTTPClient { val baseUrl = "http://ip.jsontest.com/" }
 
-    implicit lazy val rq = Volley.newRequestQueue(context)
-
-### Create a client
-
-    val httpClient = new SHTTPClient { val baseURl = "http://myapi.com" }
-
-### Perform some requests
-   
-    httpClient.get[JSONObject]("test")
-
+// Perform some requests
+httpClient.get[JSONObject]("test")
+```

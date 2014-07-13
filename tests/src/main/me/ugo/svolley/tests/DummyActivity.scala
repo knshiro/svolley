@@ -1,4 +1,4 @@
-package me.ugo.svolley
+package me.ugo.svolley.tests
 
 import android.app.Activity
 import android.os.Bundle
@@ -12,6 +12,8 @@ class DummyActivity extends Activity{
   override def onCreate( savedInstanceState:Bundle) {
     super.onCreate(savedInstanceState)
     Log.d("YEY","YEY")
+
+
   }
 
 }

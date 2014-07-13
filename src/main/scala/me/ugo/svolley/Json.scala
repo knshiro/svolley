@@ -13,10 +13,10 @@ import scala.util.Try
 
 object JsonConversions {
   
-  implicit def JSONArrayToSeq(array:JSONArray):Seq[Object] = {
+  implicit def JSONArrayToSeq(array:JSONArray):Seq[AnyRef] = {
      var i = 0
      val objs =  for (i <- 0 until array.length()) yield {
-        Try(array.get(i)).toOption
+        Option(array.opt(i))
       } 
      objs.toList.flatten
   } 
