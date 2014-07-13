@@ -26,7 +26,7 @@ import me.ugo.svolley.SHTTPClient
 implicit lazy val rq = Volley.newRequestQueue(context)
 
 // Create a client for your api
-val httpClient = new SHTTPClient { val baseUrl = "http://ip.jsontest.com/" }
+val httpClient = SHTTPClient("http://ip.jsontest.com/")
 
 // Perform some requests
 httpClient.get[JSONObject]("test")

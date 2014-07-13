@@ -19,14 +19,14 @@ class SHTTPClientTest extends AndroidTestCase with LoggerTest {
 
 
   def testJsonCall(){
-    val httpClient = new SHTTPClient { val baseUrl = "http://ip.jsontest.com/" }
+    val httpClient = SHTTPClient("http://ip.jsontest.com/")
     val response = Await.result(httpClient.get[JSONObject](""), 5 second)
     info("Received response: " + response.toString)
     Assert.assertNotNull(response)
   }
 
   def testJsonHeaders(){
-    val httpClient = new SHTTPClient { val baseUrl = "http://headers.jsontest.com/" }
+    val httpClient = SHTTPClient("http://headers.jsontest.com/")
     val response = Await.result(httpClient.get[JSONObject](""), 5 second)
     val acceptHeaders = response.getString("Accept")
     info("Received response: " + response.toString)
@@ -34,7 +34,7 @@ class SHTTPClientTest extends AndroidTestCase with LoggerTest {
   }
 
   def testJsonPost(){
-    val httpClient = new SHTTPClient { val baseUrl = "http://validate.jsontest.com/" }
+    val httpClient = SHTTPClient("http://validate.jsontest.com/")
     val body = new JSONObject
     body.put("key1", "value1")
     body.put("key2", "value2")

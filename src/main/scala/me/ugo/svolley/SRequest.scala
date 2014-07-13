@@ -31,10 +31,15 @@ trait SRequest[T] {
 }
 
 object SRequest {
-  def apply(method: Int,
+  def urlQuery(method: Int,
             url: String,
             params: Option[Map[String, String]] = None,
             headers: Map[String, String] = Map()):SRequest[Map[String, String]] = FormUrlRequest(method,url,params,headers)
+
+  def apply[T](method:Int, url:String, requestBody:Option[T] = None, headers:Map[String,String] = Map())(implicit rb:RequestBuilder[T]):SRequest[T] = {
+    rb.request(method, url, requestBody, headers)
+  }
+
 }
 
 case class StringRequest(

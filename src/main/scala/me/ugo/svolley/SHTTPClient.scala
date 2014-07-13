@@ -22,6 +22,10 @@ object SHTTPClient {
 
   val DefaultHTTPMethodsEncodingParametersInURI = Set(Method.GET, Method.HEAD,Method.DELETE)
 
+  def apply(url:String) = new SHTTPClient {
+    override def baseUrl: String = url
+  }
+
 }
 
 trait SHTTPClient {
@@ -52,12 +56,12 @@ trait SHTTPClient {
 
 
   def get[T](path:String, params:Map[String,String]=Map(), headers:Map[String,String] = Map())(implicit rq:RequestQueue, ob:OperationBuilder[T]):Future[T] = {
-    val req = SRequest(Method.GET, buildUrl(path), Some(params), buildHeaders(headers))
+    val req = SRequest.urlQuery(Method.GET, buildUrl(path), Some(params), buildHeaders(headers))
     performRequest[T](req)
   }
 
   def delete[T](path:String, params:Map[String,String] = Map(), headers:Map[String,String] = Map())(implicit rq:RequestQueue, ob:OperationBuilder[T]):Future[T] = {
-    val req = SRequest(Method.DELETE, buildUrl(path), Some(params), buildHeaders(headers))
+    val req = SRequest.urlQuery(Method.DELETE, buildUrl(path), Some(params), buildHeaders(headers))
     performRequest[T](req)
   }
 
@@ -75,7 +79,7 @@ trait SHTTPClient {
   }
 
   def makeRequest[T,U](method:Int, path:String, requestBody:Option[T] = None, headers:Map[String,String] = Map())(implicit rb:RequestBuilder[T], ob:OperationBuilder[U]):SOperation[U] = {
-    val req = rb.request(method, buildUrl(path), requestBody, buildHeaders(headers))
+    val req = SRequest(method, buildUrl(path), requestBody, buildHeaders(headers))
     ob(req)
   }
 
